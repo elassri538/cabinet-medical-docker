@@ -2,6 +2,17 @@
 
 Application académique développée en équipe avec React, TypeScript, Express et MySQL. **Ma contribution DevOps** porte sur la conteneurisation, la configuration locale, les contrôles de santé, la persistance et les vérifications de démarrage. Ce dépôt n'est pas le pipeline réutilisable du PFA.
 
+## Explorer le dépôt
+
+| À découvrir | Point d’entrée |
+| --- | --- |
+| Image de l’application | [Dockerfile multistage](Dockerfile) |
+| Architecture et persistance | [Compose](compose.yaml) : application Node/React et MySQL |
+| Configuration locale | [.env.example](.env.example) et [préparation des secrets](deploy/prepare-env.sh) |
+| Vérifications exécutables | [Test HTTP](deploy/smoke.mjs) et [test de persistance](deploy/verify-persistence.sh) |
+| API et base de données | [Serveur](server/) et [schéma SQL](database/schema.sql) |
+| Interface métier | [Écrans React](src/features/) |
+
 ## Ce qui a été réalisé
 
 - `Dockerfile` multistage : installation reproductible avec `npm ci`, compilation du frontend et image d'exécution Node.
