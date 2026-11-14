@@ -1,0 +1,61 @@
+name: cabinet-medical
+services:
+  app:
+    image: cabinet-medical-app:local
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:?Run deploy/prepare-env.sh first}
+    init: true
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: cabinet_medical
+      DB_USER: cabinet_app
+      DB_PASS: ${MYSQL_PASSWORD:?Required}
+      JWT_SECRET: ${JWT_SECRET:?Required}
+      CORS_ORIGIN: http://localhost:${CABINET_HTTP_PORT:-18082}
+    ports:
+      - "127.0.0.1:${CABINET_HTTP_PORT:-18082}:3001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [data, web]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  mysql:
+    image: ${MYSQL_IMAGE:?Run deploy/prepare-env.sh first}
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: cabinet_medical
+      MYSQL_USER: cabinet_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Required}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql --protocol=TCP -h 127.0.0.1 -u cabinet_app cabinet_medical -e "SELECT 1" >/dev/null 2>&1']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks: [data]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+volumes:
+  mysql_data:
+networks:
+  web:
+  data:
+    internal: true

@@ -1,0 +1,15 @@
+.git
+node_modules
+dist
+.env
+.env.*
+*.log
+*.zip
+*.pdf
+*.xml
+*.avant-correctif
+deploy
+README.md
+SETUP_GUIDE.md
+CONCEPTION.md
+PROJECT_MAP.md
